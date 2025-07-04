@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  basePath: process.env.NODE_ENV === 'production' ? '/Final-Kinetic-Project' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/Final-Kinetic-Project/' : '/',
+  // Konfigurasi untuk Vercel
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,7 +9,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    domains: ['vercel.app', 'localhost'],
   },
 }
 
