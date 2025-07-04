@@ -24,10 +24,14 @@ import {
   CheckCircle,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
+import { toast } from "@/components/ui/use-toast"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function AppointmentsPage() {
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("appointments")
+  const [isJoining, setIsJoining] = useState(false)
 
   // Generate dynamic dates
   const today = new Date();
@@ -58,65 +62,65 @@ export default function AppointmentsPage() {
       id: 1,
       date: formatDate(getUpcomingDate(3)),
       time: "10:00 AM",
-      doctor: "Dr. Sarah Miller",
+      doctor: "Dr. Budi Santoso",
       type: "Shoulder Assessment",
       mode: "In-person",
       location: "Main Clinic - Room 305",
       duration: "45 minutes",
       status: "Confirmed",
-      notes: "Please arrive 15 minutes early to complete paperwork",
+      notes: "Please arrive 15 minutes early for clinic administration.",
       insuranceVerified: true
     },
     {
       id: 2,
       date: formatDate(getUpcomingDate(10)),
       time: "2:30 PM",
-      doctor: "Dr. Sarah Miller",
+      doctor: "Dr. Budi Santoso",
       type: "Follow-up Session",
       mode: "Virtual",
       location: "Video Conference",
       duration: "30 minutes",
       status: "Pending",
-      notes: "Link will be sent 30 minutes before appointment",
+      notes: "A video link will be sent 30 minutes before the session.",
       insuranceVerified: true
     },
     {
       id: 3,
       date: formatDate(getUpcomingDate(21)),
       time: "11:15 AM",
-      doctor: "Dr. James Wilson",
+      doctor: "Dr. Lisa Tan",
       type: "Progress Evaluation",
       mode: "In-person",
       location: "Downtown Branch - Room 112",
       duration: "60 minutes",
       status: "Confirmed",
-      notes: "Bring your exercise log and wear comfortable clothing",
+      notes: "Bring your exercise log and wear comfortable sportswear.",
       insuranceVerified: true
     },
     {
       id: 4,
       date: formatDate(getUpcomingDate(28)),
       time: "9:45 AM",
-      doctor: "Dr. Emily Chen",
+      doctor: "Dr. Wijaya Saputra",
       type: "Gait Analysis",
       mode: "In-person",
       location: "Motion Lab - Building B",
       duration: "75 minutes",
       status: "Confirmed",
-      notes: "Wear shorts and athletic shoes for this assessment",
+      notes: "Wear shorts and athletic shoes for this assessment.",
       insuranceVerified: true
     },
     {
       id: 5,
       date: formatDate(getUpcomingDate(35)),
       time: "3:15 PM",
-      doctor: "Dr. Michael Rodriguez",
+      doctor: "Dr. Agus Pratama",
       type: "Monthly Review",
       mode: "Virtual",
       location: "Video Conference",
       duration: "45 minutes",
       status: "Tentative",
-      notes: "Will discuss progress and adjust treatment plan as needed",
+      notes: "We will discuss your progress and adjust your treatment plan as needed.",
       insuranceVerified: false
     }
   ]
@@ -125,12 +129,12 @@ export default function AppointmentsPage() {
   const therapists = [
     {
       id: 1,
-      name: "Dr. Sarah Miller",
+      name: "Dr. Budi Santoso",
       specialty: "Shoulder & Upper Extremity Specialist",
       availability: "Available Mon-Thu",
       color: "green",
       image: "/caring-doctor.png",
-      education: "DPT, University of California",
+      education: "MD, University of Indonesia",
       experience: "12 years",
       rating: 4.9,
       reviewCount: 127,
@@ -139,12 +143,12 @@ export default function AppointmentsPage() {
     },
     {
       id: 2,
-      name: "Dr. James Wilson",
+      name: "Dr. Lisa Tan",
       specialty: "Orthopedic Physical Therapist",
       availability: "Available Tue-Fri",
       color: "orange",
       image: "/athletic-man-short-hair.png",
-      education: "DPT, Northwestern University",
+      education: "MD, Airlangga University",
       experience: "8 years",
       rating: 4.8,
       reviewCount: 93,
@@ -153,12 +157,12 @@ export default function AppointmentsPage() {
     },
     {
       id: 3,
-      name: "Dr. Emily Chen",
+      name: "Dr. Wijaya Saputra",
       specialty: "Neurological Rehabilitation Expert",
       availability: "Available Wed-Sat",
       color: "blue",
       image: "/smiling-brown-haired-woman.png",
-      education: "DPT, PhD, Johns Hopkins University",
+      education: "MD, Gadjah Mada University",
       experience: "15 years",
       rating: 4.9,
       reviewCount: 156,
@@ -167,12 +171,12 @@ export default function AppointmentsPage() {
     },
     {
       id: 4,
-      name: "Dr. Michael Rodriguez",
+      name: "Dr. Agus Pratama",
       specialty: "Sports Medicine & Rehabilitation",
       availability: "Available Mon, Wed, Fri",
       color: "purple",
       image: "/older-man-glasses.png",
-      education: "DPT, University of Florida",
+      education: "MD, Padjadjaran University",
       experience: "10 years",
       rating: 4.7,
       reviewCount: 88,
@@ -181,12 +185,12 @@ export default function AppointmentsPage() {
     },
     {
       id: 5,
-      name: "Dr. Lisa Thompson",
+      name: "Dr. Melati Sari",
       specialty: "Pediatric Physical Therapist",
       availability: "Available Tue-Thu",
       color: "pink",
       image: "/friendly-receptionist.png",
-      education: "DPT, Boston University",
+      education: "MD, Diponegoro University",
       experience: "9 years",
       rating: 4.9,
       reviewCount: 112,
@@ -549,16 +553,16 @@ export default function AppointmentsPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center">
                         <div className="relative w-8 h-8 rounded-full overflow-hidden mr-3">
-                          {appointment.doctor === "Dr. Sarah Miller" && (
+                          {appointment.doctor === "Dr. Budi Santoso" && (
                             <Image src="/caring-doctor.png" alt={appointment.doctor} fill className="object-cover" />
                           )}
-                          {appointment.doctor === "Dr. James Wilson" && (
+                          {appointment.doctor === "Dr. Lisa Tan" && (
                             <Image src="/athletic-man-short-hair.png" alt={appointment.doctor} fill className="object-cover" />
                           )}
-                          {appointment.doctor === "Dr. Emily Chen" && (
+                          {appointment.doctor === "Dr. Wijaya Saputra" && (
                             <Image src="/smiling-brown-haired-woman.png" alt={appointment.doctor} fill className="object-cover" />
                           )}
-                          {appointment.doctor === "Dr. Michael Rodriguez" && (
+                          {appointment.doctor === "Dr. Agus Pratama" && (
                             <Image src="/older-man-glasses.png" alt={appointment.doctor} fill className="object-cover" />
                           )}
                         </div>
@@ -609,16 +613,40 @@ export default function AppointmentsPage() {
                     <td className="py-4 px-6">
                       <div className="flex space-x-2">
                         {appointment.mode === "Virtual" && appointment.status === "Confirmed" && (
-                          <Button variant="outline" size="sm" className="text-blue-600 border-blue-200">
-                            <Video className="h-3 w-3 mr-1" /> Join
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                onClick={() => {
+                                  setIsJoining(true);
+                                  setTimeout(() => {
+                                    setIsJoining(false);
+                                    toast({ title: "Joined session!", description: "You are now connected with the doctor." });
+                                  }, 2000);
+                                }}
+                                disabled={isJoining}
+                              >
+                                {isJoining ? <Spinner /> : "Join Meeting"}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Join video session</TooltipContent>
+                          </Tooltip>
                         )}
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-3 w-3 mr-1" /> Edit
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-red-600 border-red-200">
-                          <X className="h-3 w-3 mr-1" /> Cancel
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Edit className="h-3 w-3 mr-1" /> Edit
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit appointment</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-red-600 border-red-200" onClick={() => toast({ title: "Appointment cancelled", description: "Your appointment has been cancelled." })}>
+                              <X className="h-3 w-3 mr-1" /> Cancel
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Cancel appointment</TooltipContent>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>

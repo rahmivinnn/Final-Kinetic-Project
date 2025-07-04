@@ -52,11 +52,11 @@ export default function DashboardPage() {
   // Generate more varied and dynamic data
   const generateAppointments = () => {
     const therapists = [
-      { name: "Dr. Sarah Johnson", image: "/caring-doctor.png" },
-      { name: "Dr. Michael Chen", image: "/friendly-receptionist.png" },
-      { name: "Dr. Emily Rodriguez", image: "/smiling-brown-haired-woman.png" },
-      { name: "Dr. James Wilson", image: "/athletic-man-short-hair.png" },
-      { name: "Dr. Lisa Thompson", image: "/older-man-glasses.png" }
+      { name: "Dr. Budi Santoso", image: "/caring-doctor.png" },
+      { name: "Dr. Lisa Tan", image: "/friendly-receptionist.png" },
+      { name: "Dr. Wijaya Saputra", image: "/smiling-brown-haired-woman.png" },
+      { name: "Dr. Agus Pratama", image: "/athletic-man-short-hair.png" },
+      { name: "Dr. Melati Sari", image: "/older-man-glasses.png" }
     ];
 
     const appointmentTypes = [
@@ -134,20 +134,20 @@ export default function DashboardPage() {
 
   const generateMessages = () => {
     const senders = [
-      { name: "Dr. Sarah Johnson", image: "/caring-doctor.png" },
-      { name: "Reception", image: "/friendly-receptionist.png" },
-      { name: "Dr. Michael Chen", image: "/athletic-man-short-hair.png" },
-      { name: "Appointment System", image: "/placeholder-logo.png" }
+      { name: "Dr. Budi Santoso", image: "/caring-doctor.png" },
+      { name: "Resepsionis Klinik", image: "/friendly-receptionist.png" },
+      { name: "Dr. Lisa Tan", image: "/athletic-man-short-hair.png" },
+      { name: "Sistem Janji Temu", image: "/placeholder-logo.png" }
     ];
 
     const messageTemplates = [
-      "How are you feeling after yesterday's session? Any soreness or discomfort?",
-      "Your insurance claim has been processed successfully. No further action needed.",
-      "I've reviewed your progress data. Great improvement on your {exercise} exercises!",
-      "Reminder: Your next appointment is scheduled for {date} at {time}.",
-      "New exercise routine has been added to your program. Please review when you have time.",
-      "Your recent assessment shows significant improvement in mobility. Keep up the good work!",
-      "Please complete the feedback form for your last session when you have a moment."
+      "Bagaimana perasaan Anda setelah sesi kemarin? Apakah ada nyeri atau ketidaknyamanan?",
+      "Klaim asuransi Anda telah berhasil diproses. Tidak ada tindakan lanjutan yang diperlukan.",
+      "Saya telah meninjau data kemajuan Anda. Peningkatan luar biasa pada latihan {exercise}!",
+      "Pengingat: Janji temu Anda berikutnya dijadwalkan pada {date} pukul {time}.",
+      "Rencana latihan baru telah ditambahkan ke program Anda. Silakan tinjau saat Anda sempat.",
+      "Penilaian terbaru Anda menunjukkan peningkatan signifikan dalam mobilitas. Terus pertahankan!",
+      "Mohon lengkapi formulir umpan balik untuk sesi terakhir Anda jika berkenan."
     ];
 
     const timeframes = ["Just now", "5 minutes ago", "30 minutes ago", "1 hour ago", "2 hours ago", "Yesterday"];
@@ -1181,7 +1181,7 @@ export default function DashboardPage() {
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
                           <div className="text-center text-white">
                             <Video className="h-8 w-8 mx-auto mb-2" />
-                            <p className="text-sm font-medium">Connected to Dr. Sarah Johnson</p>
+                            <p className="text-sm font-medium">Connected to Dr. Budi Santoso</p>
                             <p className="text-xs opacity-75">Call duration: 00:05:23</p>
                           </div>
                         </div>
@@ -1221,7 +1221,7 @@ export default function DashboardPage() {
                           </Button>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-gray-600">Dr. Sarah Johnson - Physical Therapist</p>
+                          <p className="text-sm text-gray-600">Dr. Budi Santoso - Physical Therapist</p>
                         </div>
                       </div>
                     ) : (

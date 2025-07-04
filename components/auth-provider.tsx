@@ -19,54 +19,54 @@ export interface User {
 const MOCK_USERS = [
   {
     id: "1",
-    email: "sarah@example.com",
+    email: "ayu.wulandari@kinetic.co.id",
     password: "password123",
-    name: "Alex Johnson",
+    name: "Ayu Wulandari",
     role: "patient" as UserRole,
     avatar: "/smiling-brown-haired-woman.png"
   },
   {
     id: "2",
-    email: "johnson@clinic.com",
+    email: "dr.budi.santoso@kinetic.co.id",
     password: "doctor123",
-    name: "Dr. Rebecca Chen",
+    name: "Dr. Budi Santoso",
     role: "provider" as UserRole,
     avatar: "/caring-doctor.png"
   },
   {
     id: "3",
-    email: "admin@kinetic.com",
+    email: "admin@kinetic.co.id",
     password: "admin123",
-    name: "Admin User",
+    name: "Admin Kinetic",
     role: "admin" as UserRole,
   },
   {
     id: "4",
-    email: "michael@example.com",
+    email: "agus.pratama@kinetic.co.id",
     password: "password123",
-    name: "Michael Smith",
+    name: "Agus Pratama",
     role: "patient" as UserRole,
     avatar: "/athletic-man-short-hair.png"
   },
   {
     id: "5",
-    email: "emily@example.com",
+    email: "melati.sari@kinetic.co.id",
     password: "password123",
-    name: "Emily Davis",
+    name: "Melati Sari",
     role: "patient" as UserRole,
   },
   {
     id: "6",
-    email: "williams@clinic.com",
+    email: "dr.lisa.tan@kinetic.co.id",
     password: "doctor123",
-    name: "Dr. Williams",
+    name: "Dr. Lisa Tan",
     role: "provider" as UserRole,
   },
   {
     id: "7",
-    email: "provider@gmail.com",
+    email: "dr.wijaya@kinetic.co.id",
     password: "provider",
-    name: "Dr. James Wilson",
+    name: "Dr. Wijaya Saputra",
     role: "provider" as UserRole,
     avatar: "/older-man-glasses.png"
   }
@@ -74,7 +74,7 @@ const MOCK_USERS = [
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string, portalType?: 'patient' | 'provider') => Promise<{ success: boolean; error?: string }>
   logout: () => void
   isLoading: boolean
 }
@@ -100,37 +100,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string, portalType?: 'patient' | 'provider'): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Find user with matching credentials - allow any email/password combination
-      const foundUser = MOCK_USERS.find((u) => u.email.toLowerCase() === email.toLowerCase()) || 
-                       MOCK_USERS.find((u) => u.email.toLowerCase().includes(email.toLowerCase().split('@')[0]))
-
-      if (foundUser || email && password) {
-        // If no exact match found, create a default user based on email pattern
-        let userToLogin = foundUser
-        if (!foundUser) {
-          const isProvider = email.toLowerCase().includes('provider') || email.toLowerCase().includes('doctor') || email.toLowerCase().includes('clinic')
-          userToLogin = {
-            id: Date.now().toString(),
-            email: email,
-            password: password,
-            name: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-            role: isProvider ? 'provider' as UserRole : 'patient' as UserRole,
-            avatar: isProvider ? '/caring-doctor.png' : '/smiling-brown-haired-woman.png'
-          }
-        }
-        
-        // Create user object without password
-        const { password: _, ...userWithoutPassword } = userToLogin
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      
+      // First, try to find existing user
+      const foundUser = MOCK_USERS.find((u) => u.email.toLowerCase() === email.toLowerCase())
+      
+      if (foundUser) {
+        // Use existing user data
+        const { password: _, ...userWithoutPassword } = foundUser
         setUser(userWithoutPassword)
         localStorage.setItem("kineticUser", JSON.stringify(userWithoutPassword))
+        document.cookie = `kineticUser=${JSON.stringify(userWithoutPassword)}; path=/; max-age=86400`
         return { success: true }
       }
-
+      
+      // If no existing user found, create a new user based on portal type
+      if (email && password) {
+        const isProvider = portalType === 'provider' || 
+                          email.toLowerCase().includes('provider') || 
+                          email.toLowerCase().includes('doctor') || 
+                          email.toLowerCase().includes('clinic') ||
+                          email.toLowerCase().includes('dr.') ||
+                          email.toLowerCase().includes('physio') ||
+                          email.toLowerCase().includes('therapist')
+        
+        const userName = email.split('@')[0]
+          .split('.')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' ')
+        
+        const newUser: User = {
+          id: Date.now().toString(),
+          email: email,
+          name: userName,
+          role: isProvider ? 'provider' : 'patient',
+          avatar: isProvider ? '/caring-doctor.png' : '/smiling-brown-haired-woman.png'
+        }
+        
+        setUser(newUser)
+        localStorage.setItem("kineticUser", JSON.stringify(newUser))
+        document.cookie = `kineticUser=${JSON.stringify(newUser)}; path=/; max-age=86400`
+        
+        return { success: true }
+      }
+      
       return { success: false, error: "Please enter valid credentials" }
     } catch (error) {
       console.error("Login error:", error)
@@ -141,7 +157,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null)
     localStorage.removeItem("kineticUser")
-    router.push("/")
+    // Clear the cookie by setting an expired date
+    document.cookie = 'kineticUser=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    window.location.href = '/login'
   }
 
   return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>

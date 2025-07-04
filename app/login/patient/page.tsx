@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, User, AlertCircle } from "lucide-react"
+import { Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/components/auth-provider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -30,16 +30,16 @@ export default function PatientLoginPage() {
   const [registerSuccess, setRegisterSuccess] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
 
-  const { user, login, isLoading: authLoading } = useAuth()
+  const { user, login, logout, isLoading: authLoading } = useAuth()
   const router = useRouter()
 
   // Check if user is already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      // Don't auto-redirect, let user manually navigate
       console.log("User logged in:", user)
+      // Middleware will handle the redirect based on user role
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,25 +47,16 @@ export default function PatientLoginPage() {
     setIsLoading(true)
 
     try {
-      const { success, error } = await login(email, password)
-
-      if (success) {
-        // Get the logged in user from localStorage since state might not be updated yet
-        const loggedInUser = JSON.parse(localStorage.getItem("kineticUser") || "{}")
-        
-        if (loggedInUser.role === "patient") {
-          // Show success message but don't auto-redirect
-          setError("")
-          // User can manually navigate using the dashboard button
-        } else {
-          setError("This login is for patients only. Please use the provider login.")
-        }
+      const result = await login(email, password, 'patient')
+      if (result.success) {
+        // Login successful - middleware will handle redirect
+        console.log("Patient login successful")
       } else {
-        setError(error || "Login failed. Please check your credentials and try again.")
+        setError(result.error || "Login failed. Please check your credentials and try again.")
       }
     } catch (err) {
-      setError("An error occurred. Please try again.")
-      console.error(err)
+      setError("An unexpected error occurred. Please try again.")
+      console.error("Login error:", err)
     } finally {
       setIsLoading(false)
     }
@@ -117,45 +108,25 @@ export default function PatientLoginPage() {
   };
 
   // For demo purposes, let's add a quick login function
-  const handleQuickLogin = async (userType: string) => {
-    let loginEmail = "";
-    let loginPassword = "";
-
-    if (userType === "patient") {
-      loginEmail = "sarah@example.com";
-      loginPassword = "password123";
-    } else if (userType === "provider") {
-      loginEmail = "johnson@clinic.com";
-      loginPassword = "doctor123";
-    }
-
-    setEmail(loginEmail);
-    setPassword(loginPassword);
-
-    // Automatically login after setting credentials
-    setError("");
-    setIsLoading(true);
+  const handleQuickLogin = async () => {
+    const demoEmail = "sarah@example.com"
+    const demoPassword = "password123"
+    
+    setEmail(demoEmail)
+    setPassword(demoPassword)
+    setError("")
+    setIsLoading(true)
 
     try {
-      const { success, error } = await login(loginEmail, loginPassword);
-
-      if (success) {
-        // Get the logged in user from localStorage since state might not be updated yet
-        const loggedInUser = JSON.parse(localStorage.getItem("kineticUser") || "{}")
-        
-        if (loggedInUser.role === "patient") {
-          router.push("/dashboard");
-        } else {
-          setError("This login is for patients only. Please use the provider login.");
-        }
-      } else {
-        setError(error || "Login failed. Please check your credentials and try again.");
+      const result = await login(demoEmail, demoPassword, 'patient')
+      if (!result.success) {
+        setError("Failed to login with demo account. Please try again.")
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
-      console.error(err);
+      setError("An error occurred during demo login. Please try again.")
+      console.error("Demo login error:", err)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -266,19 +237,44 @@ export default function PatientLoginPage() {
                     variant="outline"
                     size="sm"
                     className="flex-1 text-xs"
-                    onClick={() => handleQuickLogin("patient")}
+                    onClick={handleQuickLogin}
                   >
-                    Patient Login
+                    Patient Demo
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex-1 text-xs"
-                    onClick={() => handleQuickLogin("provider")}
+                    onClick={() => window.location.href = '/login/provider'}
                   >
                     Provider Login
                   </Button>
                 </div>
+              </div>
+
+              {/* Bypass to Dashboard Button */}
+              <div className="mt-4 border-t pt-4">
+                <p className="text-xs text-gray-500 mb-2 text-center">Quick Access:</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                  onClick={() => {
+                    // Create a temporary patient user and redirect
+                    const tempUser = {
+                      id: "temp-patient",
+                      email: "demo@patient.com",
+                      name: "Demo Patient",
+                      role: "patient",
+                      avatar: "/smiling-brown-haired-woman.png"
+                    }
+                    localStorage.setItem("kineticUser", JSON.stringify(tempUser))
+                    document.cookie = `kineticUser=${JSON.stringify(tempUser)}; path=/; max-age=86400`
+                    window.location.href = '/dashboard/patient'
+                  }}
+                >
+                  🚀 Bypass to Patient Dashboard
+                </Button>
               </div>
 
               <div className="mt-6 text-center">

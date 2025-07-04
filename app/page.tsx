@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -5,6 +7,20 @@ import { SiteHeader } from "@/components/site-header"
 import { Activity, BarChart3, FileText, Lock } from "lucide-react"
 
 export default function Home() {
+  // Bypass handler
+  const handleBypass = () => {
+    const tempUser = {
+      id: "temp-patient",
+      email: "demo@patient.com",
+      name: "Ayu Pranata",
+      role: "patient",
+      avatar: "/smiling-brown-haired-woman.png"
+    }
+    localStorage.setItem("kineticUser", JSON.stringify(tempUser))
+    document.cookie = `kineticUser=${JSON.stringify(tempUser)}; path=/; max-age=86400`
+    window.location.href = "/dashboard/patient"
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -32,6 +48,14 @@ export default function Home() {
                     </Button>
                   </Link>
                 </div>
+                {/* BYPASS BUTTON */}
+                <Button
+                  variant="outline"
+                  className="mt-4 w-fit bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                  onClick={handleBypass}
+                >
+                  🚀 Bypass to Patient Dashboard
+                </Button>
               </div>
               <div className="mx-auto lg:mx-0 lg:flex-1">
                 <Image

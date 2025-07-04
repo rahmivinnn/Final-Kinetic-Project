@@ -30,7 +30,7 @@ export default function ProviderLoginPage() {
   const [registerSuccess, setRegisterSuccess] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
 
-  const { user, login, isLoading: authLoading } = useAuth()
+  const { user, login, logout, isLoading: authLoading } = useAuth()
   const router = useRouter()
 
   // Check if already logged in
@@ -43,29 +43,20 @@ export default function ProviderLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("")
+    setError('')
     setIsLoading(true)
 
     try {
-      const { success, error } = await login(email, password)
-
-      if (success) {
-        // Get the logged in user from localStorage since state might not be updated yet
-        const loggedInUser = JSON.parse(localStorage.getItem("kineticUser") || "{}")
-        
-        if (loggedInUser.role === "provider") {
-          // Show success message but don't auto-redirect
-          setError("")
-          // User can manually navigate using the dashboard button
-        } else {
-          setError("This login is for healthcare providers only. Please use the patient login.")
-        }
+      const result = await login(email, password, 'provider')
+      if (result.success) {
+        // Login successful - middleware will handle redirect
+        console.log("Provider login successful")
       } else {
-        setError(error || "Login failed. Please check your credentials and try again.")
+        setError(result.error || 'Login failed. Please check your credentials.')
       }
     } catch (err) {
-      setError("An error occurred. Please try again.")
-      console.error(err)
+      setError('An unexpected error occurred. Please try again.')
+      console.error('Login error:', err)
     } finally {
       setIsLoading(false)
     }
@@ -83,19 +74,11 @@ export default function ProviderLoginPage() {
     setIsLoading(true)
 
     try {
-      const { success, error } = await login(providerEmail, providerPassword)
+      const { success, error } = await login(providerEmail, providerPassword, 'provider')
 
       if (success) {
-        // Get the logged in user from localStorage since state might not be updated yet
-        const loggedInUser = JSON.parse(localStorage.getItem("kineticUser") || "{}")
-        
-        if (loggedInUser.role === "provider") {
-          // Show success message but don't auto-redirect
-          setError("")
-          // User can manually navigate using the dashboard button
-        } else {
-          setError("This login is for healthcare providers only.")
-        }
+        // Login successful - middleware will handle redirect
+        setError("")
       } else {
         setError(error || "Login failed. Please check your credentials and try again.")
       }
@@ -258,6 +241,31 @@ export default function ProviderLoginPage() {
               onClick={handleQuickLogin}
             >
               Provider Demo Login (provider@gmail.com / provider)
+            </Button>
+          </div>
+
+          {/* Bypass to Dashboard Button */}
+          <div className="mt-4 border-t pt-4">
+            <p className="text-xs text-black mb-2 text-center">Quick Access:</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+              onClick={() => {
+                // Create a temporary provider user and redirect
+                const tempUser = {
+                  id: "temp-provider",
+                  email: "demo@provider.com",
+                  name: "Dr. Demo Provider",
+                  role: "provider",
+                  avatar: "/caring-doctor.png"
+                }
+                localStorage.setItem("kineticUser", JSON.stringify(tempUser))
+                document.cookie = `kineticUser=${JSON.stringify(tempUser)}; path=/; max-age=86400`
+                window.location.href = '/dashboard/provider'
+              }}
+            >
+              🚀 Bypass to Provider Dashboard
             </Button>
           </div>
         </div>
